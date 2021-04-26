@@ -23,13 +23,16 @@ Configuration can be placed in `/path/to/canvas/config/fips.yml`:
 
 ```sh
 production:
+  enable: true
   # Set to true to raise exception on Digest::MD5 calls, which should prevent
   # the FIPS extensions from killing rails server. When false, the plugin only logs warnings.
   raise_exceptions: true
 
 development:
+  enable: true
   raise_exceptions: true
   
 test:
+  enable: true
   raise_exceptions: true
 ```

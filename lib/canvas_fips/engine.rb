@@ -32,24 +32,27 @@ module CanvasFips
 
     initializer "canvas_fips.canvas_plugin" do
       settings = {
+        :enable => nil,
         :raise_exceptions => nil,
       }.merge((ConfigFile.load("fips").dup || {}).symbolize_keys)
       CanvasFips.settings = settings
 
-      Rails.logger.debug("[FIPS] Applying patches...")
-      Rails.application.config.active_support.use_sha1_digests = true
+      if settings[:enable]
+        Rails.logger.debug("[FIPS] Applying patches...")
+        Rails.application.config.active_support.use_sha1_digests = true
 
-      Digest::MD5.extend CoreExtensions::Digest::MD5
-      Course.prepend CanvasExtensions::Course
-      WebConference.prepend CanvasExtensions::WebConference
+        Digest::MD5.extend CoreExtensions::Digest::MD5
+        Course.prepend CanvasExtensions::Course
+        WebConference.prepend CanvasExtensions::WebConference
 
-      # Switchman uses a module prepend to cache the migration context using MD5 as key. Replace their call with ours.
-      #
-      # This is replacing memoization code (all of the real functionality is provided by ActiveRecord directly)
-      # so this should be pretty safe to override with our code.
-      if defined?(Switchman::ActiveRecord::MigrationContext)
-        ActiveRecord::MigrationContext.prepend CoreExtensions::ActiveRecord::MigrationContext
-        Switchman::ActiveRecord::MigrationContext.remove_method(:migrations)
+        # Switchman uses a module prepend to cache the migration context using MD5 as key. Replace their call with ours.
+        #
+        # This is replacing memoization code (all of the real functionality is provided by ActiveRecord directly)
+        # so this should be pretty safe to override with our code.
+        if defined?(Switchman::ActiveRecord::MigrationContext)
+          ActiveRecord::MigrationContext.prepend CoreExtensions::ActiveRecord::MigrationContext
+          Switchman::ActiveRecord::MigrationContext.remove_method(:migrations)
+        end
       end
     end
 
