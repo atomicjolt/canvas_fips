@@ -41,7 +41,7 @@ module CanvasFips
         Rails.logger.debug("[FIPS] Applying patches...")
         Rails.application.config.active_support.use_sha1_digests = true
 
-        Digest::MD5.extend CoreExtensions::Digest::MD5
+        Digest::MD5 = Digest::SHA256
         Course.prepend CanvasExtensions::Course
         WebConference.prepend CanvasExtensions::WebConference
 
